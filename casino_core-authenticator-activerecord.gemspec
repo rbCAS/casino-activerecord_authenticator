@@ -23,6 +23,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'sqlite3', '~> 1.3.7'
 
   s.add_runtime_dependency 'activerecord', '~> 3.2.12'
-  s.add_runtime_dependency 'casino_core', '~> 1.0'
   s.add_runtime_dependency 'unix-crypt', '~> 1.0.2'
 end

@@ -1,4 +1,3 @@
-require 'casino_core/authenticator'
 require 'active_record'
 require 'unix_crypt'
 
