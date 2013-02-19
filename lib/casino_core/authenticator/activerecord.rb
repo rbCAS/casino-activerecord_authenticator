@@ -36,10 +36,18 @@ class CASinoCore::Authenticator::ActiveRecord
     magic = password_from_database.split('$')[1]
     case magic
     when /\A2a?\z/
-      BCrypt::Password.new(password_from_database) == password
+      valid_password_with_bcrypt?(password, password_from_database)
     else
-      UnixCrypt.valid?(password, password_from_database)
+      valid_password_with_unix_crypt?(password, password_from_database)
     end
+  end
+
+  def valid_password_with_bcrypt?(password, password_from_database)
+    BCrypt::Password.new(password_from_database) == password
+  end
+
+  def valid_password_with_unix_crypt?(password, password_from_database)
+    UnixCrypt.valid?(password, password_from_database)
   end
 
   def extra_attributes(user)
