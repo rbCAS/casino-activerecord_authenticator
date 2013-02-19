@@ -1,5 +1,6 @@
 require 'active_record'
 require 'unix_crypt'
+require 'bcrypt'
 
 class CASinoCore::Authenticator::ActiveRecord
 
@@ -32,7 +33,13 @@ class CASinoCore::Authenticator::ActiveRecord
 
   private
   def valid_password?(password, password_from_database)
-    UnixCrypt.valid?(password, password_from_database)
+    magic = password_from_database.split('$')[1]
+    case magic
+    when /\A2a?\z/
+      BCrypt::Password.new(password_from_database) == password
+    else
+      UnixCrypt.valid?(password, password_from_database)
+    end
   end
 
   def extra_attributes(user)
