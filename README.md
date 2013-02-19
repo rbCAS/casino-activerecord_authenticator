@@ -24,7 +24,7 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
             fullname: "displayname"
 
 ## Contributing to casino_core-authenticator-activerecord
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
 * Fork the project.
