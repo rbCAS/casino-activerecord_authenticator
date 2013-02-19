@@ -8,7 +8,7 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
 
     authenticators:
       my_company_sql:
-        authenticator: "activerecord"
+        authenticator: "ActiveRecord"
         options:
           connection:
             adapter: "mysql"
