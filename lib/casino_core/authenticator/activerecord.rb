@@ -10,7 +10,7 @@ class CASinoCore::Authenticator::ActiveRecord
     ::ActiveRecord::Base.establish_connection @options[:connection]
 
     eval <<-END
-      class #{@options[:table].classify} < ActiveRecord::Base
+      class #{self.class.to_s}::#{@options[:table].classify} < ActiveRecord::Base
       end
     END
 
