@@ -64,6 +64,18 @@ describe CASinoCore::Authenticator::ActiveRecord do
       end
     end
 
+    context 'support for bcrypt' do
+      before do
+        CASinoCore::Authenticator::ActiveRecord::User.create!(
+          username: 'test2',
+          password: '$2a$10$dRFLSkYedQ05sqMs3b265e0nnJSoa9RhbpKXU79FDPVeuS1qBG7Jq', # password: testpassword2
+          mail_address: 'mail@example.org')
+      end
+
+      it 'is able to handle bcrypt password hashes' do
+        @authenticator.validate('test2', 'testpassword2').should be_instance_of(Hash)
+      end
+    end
 
   end
 
