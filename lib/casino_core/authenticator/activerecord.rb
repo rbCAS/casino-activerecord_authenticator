@@ -22,7 +22,7 @@ class CASinoCore::Authenticator::ActiveRecord
     password_from_database = user.send(@options[:password_column])
 
     if valid_password?(password, password_from_database)
-      { username: user.send(@options[:username_column]) }
+      { username: user.send(@options[:username_column]) }.merge(extra_attributes(user))
     else
       false
     end
@@ -34,5 +34,13 @@ class CASinoCore::Authenticator::ActiveRecord
   private
   def valid_password?(password, password_from_database)
     UnixCrypt.valid?(password, password_from_database)
+  end
+
+  def extra_attributes(user)
+    attributes = {}
+    @options[:extra_attributes].each do |attribute_name, database_column|
+      attributes[attribute_name] = user.send(database_column)
+    end
+    attributes
   end
 end

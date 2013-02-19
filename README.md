@@ -20,8 +20,8 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
           username_column: "username"
           password_column: "password"
           extra_attributes:
-            email: "email"
-            fullname: "displayname"
+            email: "email_database_column"
+            fullname: "displayname_database_column"
 
 ## Contributing to casino_core-authenticator-activerecord
 

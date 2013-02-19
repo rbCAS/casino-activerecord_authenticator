@@ -11,7 +11,10 @@ describe CASinoCore::Authenticator::ActiveRecord do
       },
       table: 'users',
       username_column: 'username',
-      password_column: 'password'
+      password_column: 'password',
+      extra_attributes: {
+        email: 'mail_address'
+      }
     }
   end
 
@@ -24,34 +27,43 @@ describe CASinoCore::Authenticator::ActiveRecord do
         create_table :users do |t|
           t.string :username
           t.string :password
+          t.string :mail_address
         end
       end
     end
 
-    CASinoCore::Authenticator::ActiveRecord::User.create!(username: 'test', password: '$5$cegeasjoos$vPX5AwDqOTGocGjehr7k1IYp6Kt.U4FmMUa.1l6NrzD') # password: testpassword
+    CASinoCore::Authenticator::ActiveRecord::User.create!(
+      username: 'test',
+      password: '$5$cegeasjoos$vPX5AwDqOTGocGjehr7k1IYp6Kt.U4FmMUa.1l6NrzD', # password: testpassword
+      mail_address: 'mail@example.org')
   end
 
-  describe "#validate" do
+  describe '#validate' do
 
-    context "valid username" do
-      context "valid password" do
-        it 'returns the userdata' do
-          @authenticator.validate('test', 'testpassword').should eq({username: 'test'})
+    context 'valid username' do
+      context 'valid password' do
+        it 'returns the username' do
+          @authenticator.validate('test', 'testpassword')[:username].should eq('test')
+        end
+
+        it 'returns the extra attributes' do
+          @authenticator.validate('test', 'testpassword')[:email].should eq('mail@example.org')
         end
       end
 
-      context "invalid password" do
+      context 'invalid password' do
         it 'returns false' do
           @authenticator.validate('test', 'wrongpassword').should eq(false)
         end
       end
     end
 
-    context "invalid username" do
+    context 'invalid username' do
       it 'returns false' do
         @authenticator.validate('does-not-exist', 'testpassword').should eq(false)
       end
     end
+
 
   end
 
