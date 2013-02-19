@@ -5,8 +5,8 @@ require 'casino_core/authenticator/activerecord/version'
 Gem::Specification.new do |s|
   s.name        = 'casino_core-authenticator-activerecord'
   s.version     = CASinoCore::Authenticator::ActiveRecord::VERSION
-  s.authors     = ['Nils Caspar']
-  s.email       = ['ncaspar@me.com']
+  s.authors     = ['Nils Caspar', 'Raffael Schmid']
+  s.email       = ['ncaspar@me.com', 'raffael@yux.ch']
   s.homepage    = 'http://rbcas.org/'
   s.license     = 'MIT'
   s.summary     = 'Provides mechanism to use ActiveRecord as an authenticator for CASinoCore.'
