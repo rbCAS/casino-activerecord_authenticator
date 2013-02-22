@@ -11,7 +11,7 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
         authenticator: "ActiveRecord"
         options:
           connection:
-            adapter: "mysql"
+            adapter: "mysql2"
             host: "localhost"
             username: "casino"
             password: "secret"
