@@ -56,7 +56,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
         end
 
         it 'returns the extra attributes' do
-          @authenticator.validate('test', 'testpassword')[:email].should eq('mail@example.org')
+          @authenticator.validate('test', 'testpassword')[:extra_attributes][:email].should eq('mail@example.org')
         end
       end
 
