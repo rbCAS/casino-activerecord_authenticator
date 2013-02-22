@@ -4,17 +4,21 @@ require 'bcrypt'
 
 class CASinoCore::Authenticator::ActiveRecord
 
+  class AuthDatabase < ::ActiveRecord::Base
+    self.abstract_class = true
+  end
+
   # @param [Hash] options
   def initialize(options)
     @options = options
-    ::ActiveRecord::Base.establish_connection @options[:connection]
 
     eval <<-END
-      class #{self.class.to_s}::#{@options[:table].classify} < ActiveRecord::Base
+      class #{self.class.to_s}::#{@options[:table].classify} < AuthDatabase
       end
     END
 
     @model = "#{self.class.to_s}::#{@options[:table].classify}".constantize
+    @model.establish_connection @options[:connection]
   end
 
   def validate(username, password)
