@@ -7,7 +7,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
     {
       connection: {
         adapter: 'sqlite3',
-        database: ':memory:'
+        database: '/tmp/casino-test-auth.sqlite'
       },
       table: 'users',
       username_column: 'username',
@@ -19,8 +19,9 @@ describe CASinoCore::Authenticator::ActiveRecord do
   end
 
   before do
-
     @authenticator = CASinoCore::Authenticator::ActiveRecord.new(options)
+
+    ::ActiveRecord::Base.establish_connection options[:connection]
 
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
@@ -36,6 +37,14 @@ describe CASinoCore::Authenticator::ActiveRecord do
       username: 'test',
       password: '$5$cegeasjoos$vPX5AwDqOTGocGjehr7k1IYp6Kt.U4FmMUa.1l6NrzD', # password: testpassword
       mail_address: 'mail@example.org')
+  end
+
+  after do
+    ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Schema.define do
+        drop_table :users
+      end
+    end
   end
 
   describe '#validate' do
