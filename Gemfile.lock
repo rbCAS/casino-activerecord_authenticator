@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    casino_core-authenticator-activerecord (1.1.1)
+    casino_core-authenticator-activerecord (1.1.2)
       activerecord (~> 3.2.12)
       bcrypt-ruby (~> 3.0.1)
       unix-crypt (~> 1.0.2)
