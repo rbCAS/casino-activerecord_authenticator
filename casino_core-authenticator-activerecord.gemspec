@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 2.12'
   s.add_development_dependency 'simplecov', '~> 0.7'
   s.add_development_dependency 'sqlite3', '~> 1.3.7'
+  s.add_development_dependency 'coveralls'
 
   s.add_runtime_dependency 'activerecord', '~> 3.2.12'
   s.add_runtime_dependency 'unix-crypt', '~> 1.0.2'
