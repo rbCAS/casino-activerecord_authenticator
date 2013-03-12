@@ -1,4 +1,4 @@
-# casino_core-authenticator-activerecord [![Build Status](https://travis-ci.org/rbCAS/casino_core-authenticator-activerecord.png?branch=master)](https://travis-ci.org/rbCAS/casino_core-authenticator-activerecord)
+# casino_core-authenticator-activerecord [![Build Status](https://travis-ci.org/rbCAS/casino_core-authenticator-activerecord.png?branch=master)](https://travis-ci.org/rbCAS/casino_core-authenticator-activerecord) [![Coverage Status](https://coveralls.io/repos/rbCAS/casino_core-authenticator-activerecord/badge.png?branch=master)](https://coveralls.io/r/rbCAS/casino_core-authenticator-activerecord)
 
 Provides mechanism to use ActiveRecord as an authenticator for [CASinoCore](https://github.com/rbCAS/CASinoCore).
 
