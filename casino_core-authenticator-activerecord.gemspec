@@ -24,6 +24,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'coveralls'
 
   s.add_runtime_dependency 'activerecord', '~> 3.2.12'
-  s.add_runtime_dependency 'unix-crypt', '~> 1.0.2'
-  s.add_runtime_dependency 'bcrypt-ruby', '~> 3.0.1'
+  s.add_runtime_dependency 'unix-crypt', '~> 1.1'
+  s.add_runtime_dependency 'bcrypt-ruby', '~> 3.0'
 end
