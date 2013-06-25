@@ -4,6 +4,7 @@ require 'casino_core/authenticator/activerecord'
 describe CASinoCore::Authenticator::ActiveRecord do
 
   let(:pepper) { nil }
+  let(:extra_attributes) {{ email: 'mail_address' }}
   let(:options) do
     {
       connection: {
@@ -14,9 +15,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
       username_column: 'username',
       password_column: 'password',
       pepper: pepper,
-      extra_attributes: {
-        email: 'mail_address'
-      }
+      extra_attributes: extra_attributes
     }
   end
 
@@ -59,6 +58,14 @@ describe CASinoCore::Authenticator::ActiveRecord do
 
         it 'returns the extra attributes' do
           @authenticator.validate('test', 'testpassword')[:extra_attributes][:email].should eq('mail@example.org')
+        end
+
+        context 'when no extra attributes given' do
+          let(:extra_attributes) { nil }
+
+          it 'returns the an empty hash for extra attributes' do
+            @authenticator.validate('test', 'testpassword')[:extra_attributes].should eq({})
+          end
         end
       end
 
