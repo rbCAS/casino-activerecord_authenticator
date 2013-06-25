@@ -63,7 +63,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
         context 'when no extra attributes given' do
           let(:extra_attributes) { nil }
 
-          it 'returns the an empty hash for extra attributes' do
+          it 'returns an empty hash for extra attributes' do
             @authenticator.validate('test', 'testpassword')[:extra_attributes].should eq({})
           end
         end
