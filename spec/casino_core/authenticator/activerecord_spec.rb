@@ -3,6 +3,7 @@ require 'casino_core/authenticator/activerecord'
 
 describe CASinoCore::Authenticator::ActiveRecord do
 
+  let(:pepper) { nil }
   let(:options) do
     {
       connection: {
@@ -12,6 +13,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
       table: 'users',
       username_column: 'username',
       password_column: 'password',
+      pepper: pepper,
       extra_attributes: {
         email: 'mail_address'
       }
@@ -83,6 +85,21 @@ describe CASinoCore::Authenticator::ActiveRecord do
 
       it 'is able to handle bcrypt password hashes' do
         @authenticator.validate('test2', 'testpassword2').should be_instance_of(Hash)
+      end
+    end
+
+    context 'support for bcrypt with pepper' do
+      let(:pepper) { 'abcdefg' }
+
+      before do
+        CASinoCore::Authenticator::ActiveRecord::User.create!(
+          username: 'test3',
+          password: '$2a$10$ndCGPWg5JFMQH/Kl6xKe.OGNaiG7CFIAVsgAOJU75Q6g5/FpY5eX6', # password: testpassword3, pepper: abcdefg
+          mail_address: 'mail@example.org')
+      end
+
+      it 'is able to handle bcrypt password hashes' do
+        @authenticator.validate('test3', 'testpassword3').should be_instance_of(Hash)
       end
     end
 

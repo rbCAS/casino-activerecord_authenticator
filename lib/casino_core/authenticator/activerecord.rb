@@ -48,7 +48,8 @@ class CASinoCore::Authenticator::ActiveRecord
   end
 
   def valid_password_with_bcrypt?(password, password_from_database)
-    BCrypt::Password.new(password_from_database) == password
+    password_with_pepper = password + @options[:pepper].to_s
+    BCrypt::Password.new(password_from_database) == password_with_pepper
   end
 
   def valid_password_with_unix_crypt?(password, password_from_database)
