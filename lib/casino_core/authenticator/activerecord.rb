@@ -58,9 +58,13 @@ class CASinoCore::Authenticator::ActiveRecord
 
   def extra_attributes(user)
     attributes = {}
-    @options[:extra_attributes].to_a.each do |attribute_name, database_column|
+    extra_attributes_option.each do |attribute_name, database_column|
       attributes[attribute_name] = user.send(database_column)
     end
     attributes
+  end
+
+  def extra_attributes_option
+    @options[:extra_attributes] || {}
   end
 end
