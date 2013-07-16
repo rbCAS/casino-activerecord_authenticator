@@ -38,6 +38,7 @@ class CASinoCore::Authenticator::ActiveRecord
 
   private
   def valid_password?(password, password_from_database)
+    return false if password_from_database.blank?
     magic = password_from_database.split('$')[1]
     case magic
     when /\A2a?\z/

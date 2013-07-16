@@ -74,6 +74,26 @@ describe CASinoCore::Authenticator::ActiveRecord do
           @authenticator.validate('test', 'wrongpassword').should eq(false)
         end
       end
+
+      context 'NULL password field' do
+        it 'returns false' do
+          user = CASinoCore::Authenticator::ActiveRecord::User.first
+          user.password = nil
+          user.save!
+
+          @authenticator.validate('test', 'wrongpassword').should eq(false)
+        end
+      end
+
+      context 'empty password field' do
+        it 'returns false' do
+          user = CASinoCore::Authenticator::ActiveRecord::User.first
+          user.password = ''
+          user.save!
+
+          @authenticator.validate('test', 'wrongpassword').should eq(false)
+        end
+      end
     end
 
     context 'invalid username' do
