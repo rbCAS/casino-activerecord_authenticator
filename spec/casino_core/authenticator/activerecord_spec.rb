@@ -30,6 +30,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
           t.string :username
           t.string :password
           t.string :mail_address
+          t.string :salt
         end
       end
     end
@@ -127,6 +128,21 @@ describe CASinoCore::Authenticator::ActiveRecord do
 
       it 'is able to handle bcrypt password hashes' do
         @authenticator.validate('test3', 'testpassword3').should be_instance_of(Hash)
+      end
+    end
+
+    context 'support for sha1 restful-authentication' do
+      let(:pepper) { '9df92c193273ae9adf804195641b50828dee0088' }
+      before do
+        CASinoCore::Authenticator::ActiveRecord::User.create!(
+          username: 'test4',
+          password: '$sha$a5a2725edcb9f8f5764047dc37c0a0c279dba699',
+          mail_address: 'mail@example.org',
+          salt: 'b1676d830c1558b584491089239f3ff448e5277e')
+      end
+
+      it 'is able to handle sha1 restful-authentication password hashes' do
+        @authenticator.validate('test4', 'kapastry').should be_instance_of(Hash)
       end
     end
 
