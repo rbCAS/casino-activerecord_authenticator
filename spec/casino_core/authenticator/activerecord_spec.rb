@@ -136,13 +136,13 @@ describe CASinoCore::Authenticator::ActiveRecord do
       before do
         CASinoCore::Authenticator::ActiveRecord::User.create!(
           username: 'test4',
-          password: '$sha$a5a2725edcb9f8f5764047dc37c0a0c279dba699',
+          password: '$sha$2986d3bb945c0d03901fb7ec7e1405e5d9846271',
           mail_address: 'mail@example.org',
           salt: 'b1676d830c1558b584491089239f3ff448e5277e')
       end
 
       it 'is able to handle sha1 restful-authentication password hashes' do
-        @authenticator.validate('test4', 'kapastry').should be_instance_of(Hash)
+        @authenticator.validate('test4', 'password').should be_instance_of(Hash)
       end
     end
 
