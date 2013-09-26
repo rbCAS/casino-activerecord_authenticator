@@ -70,7 +70,7 @@ class CASinoCore::Authenticator::ActiveRecord
     10.times do 
       digest = secure_digest(digest, salt, password, site_auth_key)
     end
-    digest == password_from_database
+    digest == password_from_database.split('$')[2]
   end
 
   def extra_attributes(user)
