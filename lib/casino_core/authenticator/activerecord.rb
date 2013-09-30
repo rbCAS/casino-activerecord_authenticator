@@ -65,7 +65,7 @@ class CASinoCore::Authenticator::ActiveRecord
   end
 
   def valid_password_with_sha1_crypt?(password, password_from_database, salt)
-    site_auth_key = digest = @options[:pepper].to_s
+    site_auth_key = digest = @options[:site_auth_key].to_s
     10.times do 
       digest = secure_digest(digest, salt, password, site_auth_key)
     end

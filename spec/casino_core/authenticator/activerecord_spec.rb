@@ -5,6 +5,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
 
   let(:pepper) { nil }
   let(:extra_attributes) {{ email: 'mail_address' }}
+  let(:site_auth_key) { '9df92c193273ae9adf804195641b50828dee0088' }
   let(:options) do
     {
       connection: {
@@ -15,6 +16,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
       username_column: 'username',
       password_column: 'password',
       pepper: pepper,
+      site_auth_key: site_auth_key,
       extra_attributes: extra_attributes
     }
   end
@@ -132,7 +134,6 @@ describe CASinoCore::Authenticator::ActiveRecord do
     end
 
     context 'support for sha1 restful-authentication' do
-      let(:pepper) { '9df92c193273ae9adf804195641b50828dee0088' }
       before do
         CASinoCore::Authenticator::ActiveRecord::User.create!(
           username: 'test4',
