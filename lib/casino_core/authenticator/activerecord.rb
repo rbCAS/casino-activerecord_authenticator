@@ -24,7 +24,10 @@ class CASinoCore::Authenticator::ActiveRecord
 
   def validate(username, password)
     @model.verify_active_connections!
-    user = @model.send("find_by_#{@options[:username_column]}!", username)
+    user = @model.send("find_by_#{@options[:username_column]}", username)
+    unless user
+      user = @model.send("find_by_#{@options[:email_column]}!", username)
+    end
     password_from_database = user.send(@options[:password_column])
 
     if valid_password?(password, password_from_database, (user.salt if user.respond_to?(:salt)))
