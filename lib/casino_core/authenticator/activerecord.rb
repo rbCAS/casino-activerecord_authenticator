@@ -1,6 +1,7 @@
 require 'active_record'
 require 'unix_crypt'
 require 'bcrypt'
+require 'digest/sha1'
 
 class CASinoCore::Authenticator::ActiveRecord
 
@@ -23,10 +24,13 @@ class CASinoCore::Authenticator::ActiveRecord
 
   def validate(username, password)
     @model.verify_active_connections!
-    user = @model.send("find_by_#{@options[:username_column]}!", username)
+    user = @model.send("find_by_#{@options[:username_column]}", username)
+    unless user
+      user = @model.send("find_by_#{@options[:email_column]}!", username)
+    end
     password_from_database = user.send(@options[:password_column])
 
-    if valid_password?(password, password_from_database)
+    if valid_password?(password, password_from_database, (user.salt if user.respond_to?(:salt)))
       { username: user.send(@options[:username_column]), extra_attributes: extra_attributes(user) }
     else
       false
@@ -37,12 +41,18 @@ class CASinoCore::Authenticator::ActiveRecord
   end
 
   private
-  def valid_password?(password, password_from_database)
+  def secure_digest(*args)
+    Digest::SHA1.hexdigest(args.flatten.join('--'))
+  end
+
+  def valid_password?(password, password_from_database, salt=nil)
     return false if password_from_database.blank?
     magic = password_from_database.split('$')[1]
     case magic
     when /\A2a?\z/
       valid_password_with_bcrypt?(password, password_from_database)
+    when /\Asha?\z/
+      valid_password_with_sha1_crypt?(password, password_from_database, salt)
     else
       valid_password_with_unix_crypt?(password, password_from_database)
     end
@@ -55,6 +65,14 @@ class CASinoCore::Authenticator::ActiveRecord
 
   def valid_password_with_unix_crypt?(password, password_from_database)
     UnixCrypt.valid?(password, password_from_database)
+  end
+
+  def valid_password_with_sha1_crypt?(password, password_from_database, salt)
+    site_auth_key = digest = @options[:site_auth_key].to_s
+    10.times do 
+      digest = secure_digest(digest, salt, password, site_auth_key)
+    end
+    digest == password_from_database.split('$')[2]
   end
 
   def extra_attributes(user)

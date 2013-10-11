@@ -5,6 +5,7 @@ describe CASinoCore::Authenticator::ActiveRecord do
 
   let(:pepper) { nil }
   let(:extra_attributes) {{ email: 'mail_address' }}
+  let(:site_auth_key) { '9df92c193273ae9adf804195641b50828dee0088' }
   let(:options) do
     {
       connection: {
@@ -14,7 +15,9 @@ describe CASinoCore::Authenticator::ActiveRecord do
       table: 'users',
       username_column: 'username',
       password_column: 'password',
+      email_column: 'email',
       pepper: pepper,
+      site_auth_key: site_auth_key,
       extra_attributes: extra_attributes
     }
   end
@@ -30,6 +33,8 @@ describe CASinoCore::Authenticator::ActiveRecord do
           t.string :username
           t.string :password
           t.string :mail_address
+          t.string :salt
+          t.string :email
         end
       end
     end
@@ -127,6 +132,33 @@ describe CASinoCore::Authenticator::ActiveRecord do
 
       it 'is able to handle bcrypt password hashes' do
         @authenticator.validate('test3', 'testpassword3').should be_instance_of(Hash)
+      end
+    end
+
+    context 'support for sha1 restful-authentication' do
+      before do
+        CASinoCore::Authenticator::ActiveRecord::User.create!(
+          username: 'test4',
+          password: '$sha$2986d3bb945c0d03901fb7ec7e1405e5d9846271',
+          mail_address: 'mail@example.org',
+          salt: 'b1676d830c1558b584491089239f3ff448e5277e')
+      end
+
+      it 'is able to handle sha1 restful-authentication password hashes' do
+        @authenticator.validate('test4', 'password').should be_instance_of(Hash)
+      end
+    end
+
+    context 'support for login by username and/or email' do
+      before do 
+        CASinoCore::Authenticator::ActiveRecord::User.create!(
+            username: 'test5',
+            password: '$2a$10$q9nu9AfeUCkwMeDaFlhOQ.2L0UK0tpYIq8JjJDzphO7qy1vdU9.Se',
+            email: 'test5@copper.io'
+          )
+      end
+      it 'allows login using email' do
+        @authenticator.validate('test5@copper.io', 'testpassword4').should be_instance_of(Hash)
       end
     end
 
