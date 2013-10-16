@@ -2,7 +2,7 @@ require 'active_record'
 require 'unix_crypt'
 require 'bcrypt'
 
-class CASinoCore::Authenticator::ActiveRecord
+class CASino::ActiveRecordAuthenticator
 
   class AuthDatabase < ::ActiveRecord::Base
     self.abstract_class = true

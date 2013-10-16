@@ -1,4 +1,4 @@
-# casino_core-authenticator-activerecord [![Build Status](https://travis-ci.org/rbCAS/casino_core-authenticator-activerecord.png?branch=master)](https://travis-ci.org/rbCAS/casino_core-authenticator-activerecord) [![Coverage Status](https://coveralls.io/repos/rbCAS/casino_core-authenticator-activerecord/badge.png?branch=master)](https://coveralls.io/r/rbCAS/casino_core-authenticator-activerecord)
+# casino-activerecord_authenticator [![Build Status](https://travis-ci.org/rbCAS/casino-activerecord_authenticator.png?branch=master)](https://travis-ci.org/rbCAS/casino-activerecord_authenticator) [![Coverage Status](https://coveralls.io/repos/rbCAS/casino-activerecord_authenticator/badge.png?branch=master)](https://coveralls.io/r/rbCAS/casino-activerecord_authenticator)
 
 Provides mechanism to use ActiveRecord as an authenticator for [CASinoCore](https://github.com/rbCAS/CASinoCore).
 
@@ -24,7 +24,7 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
             email: "email_database_column"
             fullname: "displayname_database_column"
 
-## Contributing to casino_core-authenticator-activerecord
+## Contributing to casino-activerecord_authenticator
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
