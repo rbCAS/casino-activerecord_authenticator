@@ -2,7 +2,7 @@ require 'active_record'
 require 'unix_crypt'
 require 'bcrypt'
 
-class CASinoCore::Authenticator::ActiveRecord
+class CASino::ActiveRecordAuthenticator
 
   class AuthDatabase < ::ActiveRecord::Base
     self.abstract_class = true
@@ -14,6 +14,7 @@ class CASinoCore::Authenticator::ActiveRecord
 
     eval <<-END
       class #{self.class.to_s}::#{@options[:table].classify} < AuthDatabase
+        set_table_name "#{@options[:table]}"
       end
     END
 
