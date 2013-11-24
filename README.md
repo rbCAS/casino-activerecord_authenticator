@@ -1,6 +1,6 @@
-# casino-activerecord_authenticator [![Build Status](https://travis-ci.org/rbCAS/casino-activerecord_authenticator.png?branch=master)](https://travis-ci.org/rbCAS/casino-activerecord_authenticator) [![Coverage Status](https://coveralls.io/repos/rbCAS/casino-activerecord_authenticator/badge.png?branch=master)](https://coveralls.io/r/rbCAS/casino-activerecord_authenticator)
+# casino-activerecord_authenticator [![Build Status](https://travis-ci.org/rbCAS/casino-activerecord_authenticator.png?branch=master)](https://travis-ci.org/rbCAS/casino-activerecord_authenticator) [![Coverage Status](https://coveralls.io/repos/rbCAS/casino-activerecord_authenticator/badge.png)](https://coveralls.io/r/rbCAS/casino-activerecord_authenticator)
 
-Provides mechanism to use ActiveRecord as an authenticator for [CASinoCore](https://github.com/rbCAS/CASinoCore).
+Provides mechanism to use ActiveRecord as an authenticator for [CASino](https://github.com/rbCAS/CASino).
 
 ActiveRecord supports many SQL databases such as MySQL, PostgreSQL, SQLite, ...
 
