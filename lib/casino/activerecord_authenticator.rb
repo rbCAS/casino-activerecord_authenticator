@@ -1,6 +1,7 @@
 require 'active_record'
 require 'unix_crypt'
 require 'bcrypt'
+require 'phpass'
 
 class CASino::ActiveRecordAuthenticator
 
@@ -44,6 +45,8 @@ class CASino::ActiveRecordAuthenticator
     case magic
     when /\A2a?\z/
       valid_password_with_bcrypt?(password, password_from_database)
+    when /\AH\z/, /\AP\z/
+      valid_password_with_phpass?(password, password_from_database)
     else
       valid_password_with_unix_crypt?(password, password_from_database)
     end
@@ -56,6 +59,10 @@ class CASino::ActiveRecordAuthenticator
 
   def valid_password_with_unix_crypt?(password, password_from_database)
     UnixCrypt.valid?(password, password_from_database)
+  end
+
+  def valid_password_with_phpass?(password, password_from_database)
+    Phpass.new().check(password, password_from_database)
   end
 
   def extra_attributes(user)

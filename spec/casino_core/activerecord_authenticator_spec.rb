@@ -132,6 +132,19 @@ describe CASino::ActiveRecordAuthenticator do
       end
     end
 
+    context 'support for phpass' do
+      before do
+        described_class::User.create!(
+          username: 'test4',
+          password: '$P$9IQRaTwmfeRo7ud9Fh4E2PdI0S3r.L0', # password: test12345
+          mail_address: 'mail@example.org')
+      end
+
+      it 'is able to handle phpass password hashes' do
+        subject.validate('test4', 'test12345').should be_instance_of(Hash)
+      end
+    end
+
   end
 
 end
