@@ -18,6 +18,7 @@ describe CASino::ActiveRecordAuthenticator do
       extra_attributes: extra_attributes
     }
   end
+  let(:faulty_options){ options.merge(table: nil) }
 
   subject { described_class.new(options) }
 
@@ -50,6 +51,21 @@ describe CASino::ActiveRecordAuthenticator do
     end
   end
 
+  describe 'invalid yaml input' do
+    context 'no hash input' do
+      it 'throws an argument error if the supplied input was not hash' do
+        expect{described_class.new("string")}.to raise_error ArgumentError
+      end
+      it 'does not throw an error if the correct hash was supplied' do
+        expect{described_class.new(options)}.not_to raise_error
+      end
+    end
+    context 'invalid table name' do
+      it 'throws an argument error if the table was nil/not supplied' do
+        expect{described_class.new(faulty_options)}.to raise_error ArgumentError
+      end
+    end
+  end
   describe '#validate' do
 
     context 'valid username' do
