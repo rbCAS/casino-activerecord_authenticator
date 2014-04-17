@@ -15,7 +15,7 @@ class CASino::ActiveRecordAuthenticator
 
     eval <<-END
       class #{self.class.to_s}::#{@options[:table].classify} < AuthDatabase
-        set_table_name "#{@options[:table]}"
+        self.table_name = "#{@options[:table]}"
       end
     END
 
