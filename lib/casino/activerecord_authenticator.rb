@@ -11,8 +11,11 @@ class CASino::ActiveRecordAuthenticator
 
   # @param [Hash] options
   def initialize(options)
-    @options = options
-
+    if !options.respond_to?(:deep_symbolize_keys)
+      raise ArgumentError, "When assigning attributes, you must pass a hash as an argument."
+    end
+    @options = options.deep_symbolize_keys
+    raise ArgumentError, "Table name is missing" unless @options[:table]
     eval <<-END
       class #{self.class.to_s}::#{@options[:table].classify} < AuthDatabase
         self.table_name = "#{@options[:table]}"
@@ -24,7 +27,6 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def validate(username, password)
-    @model.verify_active_connections!
     user = @model.send("find_by_#{@options[:username_column]}!", username)
     password_from_database = user.send(@options[:password_column])
 
