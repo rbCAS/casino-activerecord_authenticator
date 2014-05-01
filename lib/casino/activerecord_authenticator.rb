@@ -24,7 +24,7 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def validate(username, password)
-    @model.verify_active_connections!
+    @model.clear_active_connections!
     user = @model.send("find_by_#{@options[:username_column]}!", username)
     password_from_database = user.send(@options[:password_column])
 
