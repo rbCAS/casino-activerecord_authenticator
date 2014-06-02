@@ -151,6 +151,23 @@ describe CASino::ActiveRecordAuthenticator do
       end
     end
 
+    context "support for bcrypt with salt and pepper" do
+      let(:salt_column) { 'salt' }
+      let(:pepper) { 'abcdefg' }
+
+      before do
+        described_class::User.create!(
+          username: "test3.2",
+          password: "$2a$10$1T0wvdfIdPm4DmtY4imLWO1BqRMNH9uXiC747ukE1TnN9pKB5Q/9e", # password: testpassword3.2
+          salt: "deadbeef",
+          mail_address: "mail@example.org")
+      end
+
+      it "is able to handle bcrypt password hashes with salt and pepper" do
+        subject.validate("test3.2", "testpassword3.2").should be_instance_of(Hash)
+      end
+    end
+
     context 'support for phpass' do
       before do
         described_class::User.create!(
