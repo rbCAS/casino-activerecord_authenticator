@@ -53,7 +53,7 @@ class CASino::ActiveRecordAuthenticator
     end
   end
 
-  def valid_password_with_bcrypt?(password, password_from_database, saltrom_database)
+  def valid_password_with_bcrypt?(password, password_from_database, salt_from_database)
     password_with_salt_and_pepper = password + salt_from_database.to_s + @options[:pepper].to_s
     BCrypt::Password.new(password_from_database) == password_with_salt_and_pepper
   end
