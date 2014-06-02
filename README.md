@@ -19,7 +19,8 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
           table: "users"
           username_column: "username"
           password_column: "password"
-          pepper: "suffix of the password"            # optional
+          password_salt_column: "password_salt"       # optional; for per-user password suffix
+          pepper: "suffix of the password"            # optional; for shared password suffix
           extra_attributes:
             email: "email_database_column"
             fullname: "displayname_database_column"
