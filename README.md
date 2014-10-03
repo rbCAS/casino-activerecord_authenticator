@@ -24,6 +24,21 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
             email: "email_database_column"
             fullname: "displayname_database_column"
 
+Example of configuration for SQLite:
+            
+    authenticators:
+        sqlite:
+          authenticator: "ActiveRecord"
+          options:
+            connection:
+              adapter: sqlite3
+              pool: 5
+              timeout: 5000
+              database: db/development.sqlite3
+            table: "casino_users"
+            username_column: "username"
+            password_column: "authenticator"
+
 ## Contributing to casino-activerecord_authenticator
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
