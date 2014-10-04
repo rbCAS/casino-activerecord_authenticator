@@ -24,6 +24,8 @@ To use the ActiveRecord authenticator, configure it in your cas.yml:
             email: "email_database_column"
             fullname: "displayname_database_column"
 
+Configuration examples for the `connection` part for other databases can be found [here](https://gist.github.com/erichurst/961978).
+
 ## Contributing to casino-activerecord_authenticator
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
