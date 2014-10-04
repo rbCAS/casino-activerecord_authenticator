@@ -3,6 +3,7 @@ require 'casino/activerecord_authenticator'
 
 describe CASino::ActiveRecordAuthenticator do
 
+  let(:salt_column) { nil }
   let(:pepper) { nil }
   let(:extra_attributes) {{ email: 'mail_address' }}
   let(:options) do
@@ -14,6 +15,7 @@ describe CASino::ActiveRecordAuthenticator do
       table: 'users',
       username_column: 'username',
       password_column: 'password',
+      password_salt_column: salt_column,
       pepper: pepper,
       extra_attributes: extra_attributes
     }
@@ -32,6 +34,7 @@ describe CASino::ActiveRecordAuthenticator do
         create_table :users do |t|
           t.string :username
           t.string :password
+          t.string :salt
           t.string :mail_address
         end
       end
@@ -145,6 +148,39 @@ describe CASino::ActiveRecordAuthenticator do
 
       it 'is able to handle bcrypt password hashes' do
         subject.validate('test3', 'testpassword3').should be_instance_of(Hash)
+      end
+    end
+
+    context "support for bcrypt with salt" do
+      let(:salt_column) { 'salt' }
+
+      before do
+        described_class::User.create!(
+          username: "test3.1",
+          password: "$2a$10$ehbsWmnBn2/Js1qbksqUj.HwuBurFPTsJIyjIbLDqiTwa3281VK1y", # password: testpassword3.1
+          salt: "deadbeef",
+          mail_address: "mail@example.org")
+      end
+
+      it "is able to handle bcrypt password hashes with salt" do
+        subject.validate("test3.1", "testpassword3.1").should be_instance_of(Hash)
+      end
+    end
+
+    context "support for bcrypt with salt and pepper" do
+      let(:salt_column) { 'salt' }
+      let(:pepper) { 'abcdefg' }
+
+      before do
+        described_class::User.create!(
+          username: "test3.2",
+          password: "$2a$10$1T0wvdfIdPm4DmtY4imLWO1BqRMNH9uXiC747ukE1TnN9pKB5Q/9e", # password: testpassword3.2
+          salt: "deadbeef",
+          mail_address: "mail@example.org")
+      end
+
+      it "is able to handle bcrypt password hashes with salt and pepper" do
+        subject.validate("test3.2", "testpassword3.2").should be_instance_of(Hash)
       end
     end
 

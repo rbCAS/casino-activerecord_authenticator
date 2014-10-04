@@ -30,8 +30,9 @@ class CASino::ActiveRecordAuthenticator
   def validate(username, password)
     user = @model.send("find_by_#{@options[:username_column]}!", username)
     password_from_database = user.send(@options[:password_column])
+    salt_from_database = @options[:password_salt_column].blank? ? nil : user.send(@options[:password_salt_column])
 
-    if valid_password?(password, password_from_database)
+    if valid_password?(password, password_from_database, salt_from_database)
       { username: user.send(@options[:username_column]), extra_attributes: extra_attributes(user) }
     else
       false
@@ -42,12 +43,12 @@ class CASino::ActiveRecordAuthenticator
   end
 
   private
-  def valid_password?(password, password_from_database)
+  def valid_password?(password, password_from_database, salt_from_database)
     return false if password_from_database.blank?
     magic = password_from_database.split('$')[1]
     case magic
     when /\A2a?\z/
-      valid_password_with_bcrypt?(password, password_from_database)
+      valid_password_with_bcrypt?(password, password_from_database, salt_from_database)
     when /\AH\z/, /\AP\z/
       valid_password_with_phpass?(password, password_from_database)
     else
@@ -55,9 +56,9 @@ class CASino::ActiveRecordAuthenticator
     end
   end
 
-  def valid_password_with_bcrypt?(password, password_from_database)
-    password_with_pepper = password + @options[:pepper].to_s
-    BCrypt::Password.new(password_from_database) == password_with_pepper
+  def valid_password_with_bcrypt?(password, password_from_database, salt_from_database)
+    password_with_salt_and_pepper = password + salt_from_database.to_s + @options[:pepper].to_s
+    BCrypt::Password.new(password_from_database) == password_with_salt_and_pepper
   end
 
   def valid_password_with_unix_crypt?(password, password_from_database)
