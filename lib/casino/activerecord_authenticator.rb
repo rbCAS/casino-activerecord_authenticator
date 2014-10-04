@@ -19,6 +19,7 @@ class CASino::ActiveRecordAuthenticator
     eval <<-END
       class #{self.class.to_s}::#{@options[:table].classify} < AuthDatabase
         self.table_name = "#{@options[:table]}"
+        self.inheritance_column = :_type_disabled
       end
     END
 
