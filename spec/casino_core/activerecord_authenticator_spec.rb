@@ -66,6 +66,25 @@ describe CASino::ActiveRecordAuthenticator do
       end
     end
   end
+
+  describe '#load_user_data' do
+    context 'valid username' do
+      it 'returns the username' do
+        subject.validate('test', 'testpassword')[:username].should eq('test')
+      end
+
+      it 'returns the extra attributes' do
+        subject.load_user_data('test')[:extra_attributes][:email].should eq('mail@example.org')
+      end
+    end
+
+    context 'invalid username' do
+      it 'returns nil' do
+        subject.load_user_data('does-not-exist').should eq(nil)
+      end
+    end
+  end
+
   describe '#validate' do
 
     context 'valid username' do

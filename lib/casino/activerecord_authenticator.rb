@@ -32,7 +32,7 @@ class CASino::ActiveRecordAuthenticator
     password_from_database = user.send(@options[:password_column])
 
     if valid_password?(password, password_from_database)
-      { username: user.send(@options[:username_column]), extra_attributes: extra_attributes(user) }
+      user_data(user)
     else
       false
     end
@@ -41,7 +41,18 @@ class CASino::ActiveRecordAuthenticator
     false
   end
 
+  def load_user_data(username)
+    user = @model.send("find_by_#{@options[:username_column]}!", username)
+    user_data(user)
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
   private
+  def user_data(user)
+    { username: user.send(@options[:username_column]), extra_attributes: extra_attributes(user) }
+  end
+
   def valid_password?(password, password_from_database)
     return false if password_from_database.blank?
     magic = password_from_database.split('$')[1]
