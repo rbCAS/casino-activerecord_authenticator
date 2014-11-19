@@ -16,14 +16,24 @@ class CASino::ActiveRecordAuthenticator
     end
     @options = options.deep_symbolize_keys
     raise ArgumentError, "Table name is missing" unless @options[:table]
+    if @options[:model_name]
+      model_name = @options[:model_name]
+    else
+      model_name = @options[:table]
+      if @options[:connection][:database]
+        model_name = "#{@options[:connection][:database].gsub(/[^a-zA-Z]+/, '')}_#{model_name}"
+      end
+      model_name = model_name.classify
+    end
+    model_class_name = "#{self.class.to_s}::#{model_name}"
     eval <<-END
-      class #{self.class.to_s}::#{@options[:table].classify} < AuthDatabase
+      class #{model_class_name} < AuthDatabase
         self.table_name = "#{@options[:table]}"
         self.inheritance_column = :_type_disabled
       end
     END
 
-    @model = "#{self.class.to_s}::#{@options[:table].classify}".constantize
+    @model = model_class_name.constantize
     @model.establish_connection @options[:connection]
   end
 

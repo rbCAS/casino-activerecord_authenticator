@@ -19,6 +19,7 @@ describe CASino::ActiveRecordAuthenticator do
     }
   end
   let(:faulty_options){ options.merge(table: nil) }
+  let(:user_class) { described_class::TmpcasinotestauthsqliteUser }
 
   subject { described_class.new(options) }
 
@@ -37,7 +38,7 @@ describe CASino::ActiveRecordAuthenticator do
       end
     end
 
-    described_class::User.create!(
+    user_class.create!(
       username: 'test',
       password: '$5$cegeasjoos$vPX5AwDqOTGocGjehr7k1IYp6Kt.U4FmMUa.1l6NrzD', # password: testpassword
       mail_address: 'mail@example.org')
@@ -48,6 +49,18 @@ describe CASino::ActiveRecordAuthenticator do
       ActiveRecord::Schema.define do
         drop_table :users
       end
+    end
+  end
+
+  describe 'custom model name' do
+    let(:model_name) { 'DongerRaiser' }
+    before do
+      options[:model_name] = model_name
+    end
+
+    it 'should create the model with the name specified' do
+      described_class.new(options)
+      expect(described_class.const_get(model_name)).to be_a Class
     end
   end
 
@@ -114,7 +127,7 @@ describe CASino::ActiveRecordAuthenticator do
 
       context 'NULL password field' do
         it 'returns false' do
-          user = described_class::User.first
+          user = user_class.first
           user.password = nil
           user.save!
 
@@ -124,7 +137,7 @@ describe CASino::ActiveRecordAuthenticator do
 
       context 'empty password field' do
         it 'returns false' do
-          user = described_class::User.first
+          user = user_class.first
           user.password = ''
           user.save!
 
@@ -141,7 +154,7 @@ describe CASino::ActiveRecordAuthenticator do
 
     context 'support for bcrypt' do
       before do
-        described_class::User.create!(
+        user_class.create!(
           username: 'test2',
           password: '$2a$10$dRFLSkYedQ05sqMs3b265e0nnJSoa9RhbpKXU79FDPVeuS1qBG7Jq', # password: testpassword2
           mail_address: 'mail@example.org')
@@ -156,7 +169,7 @@ describe CASino::ActiveRecordAuthenticator do
       let(:pepper) { 'abcdefg' }
 
       before do
-        described_class::User.create!(
+        user_class.create!(
           username: 'test3',
           password: '$2a$10$ndCGPWg5JFMQH/Kl6xKe.OGNaiG7CFIAVsgAOJU75Q6g5/FpY5eX6', # password: testpassword3, pepper: abcdefg
           mail_address: 'mail@example.org')
@@ -169,7 +182,7 @@ describe CASino::ActiveRecordAuthenticator do
 
     context 'support for phpass' do
       before do
-        described_class::User.create!(
+        user_class.create!(
           username: 'test4',
           password: '$P$9IQRaTwmfeRo7ud9Fh4E2PdI0S3r.L0', # password: test12345
           mail_address: 'mail@example.org')
