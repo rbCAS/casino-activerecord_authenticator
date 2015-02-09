@@ -83,7 +83,7 @@ describe CASino::ActiveRecordAuthenticator do
   describe '#load_user_data' do
     context 'valid username' do
       it 'returns the username' do
-        subject.validate('test', 'testpassword')[:username].should eq('test')
+        subject.load_user_data('test')[:username].should eq('test')
       end
 
       it 'returns the extra attributes' do
