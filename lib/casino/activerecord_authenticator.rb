@@ -20,7 +20,7 @@ class CASino::ActiveRecordAuthenticator
       model_name = @options[:model_name]
     else
       model_name = @options[:table]
-      if @options[:connection][:database]
+      if @options[:connection].kind_of? Hash
         model_name = "#{@options[:connection][:database].gsub(/[^a-zA-Z]+/, '')}_#{model_name}"
       end
       model_name = model_name.classify
