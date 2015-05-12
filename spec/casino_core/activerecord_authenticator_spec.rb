@@ -200,6 +200,9 @@ describe CASino::ActiveRecordAuthenticator do
         expect{described_class.new(connection_as_string)}.to_not raise_error
       end
 
+      it 'returns the username' do
+        described_class.new(connection_as_string).load_user_data('test')[:username].should eq('test')
+      end
     end
 
   end
