@@ -19,6 +19,7 @@ describe CASino::ActiveRecordAuthenticator do
     }
   end
   let(:faulty_options){ options.merge(table: nil) }
+  let(:connection_as_string) { options.merge(connection: 'sqlite3:/tmp/casino-test-auth.sqlite') }
   let(:user_class) { described_class::TmpcasinotestauthsqliteUser }
 
   subject { described_class.new(options) }
@@ -190,6 +191,17 @@ describe CASino::ActiveRecordAuthenticator do
 
       it 'is able to handle phpass password hashes' do
         subject.validate('test4', 'test12345').should be_instance_of(Hash)
+      end
+    end
+
+    context 'support for connection string' do
+
+      it 'should not raise an error' do
+        expect{described_class.new(connection_as_string)}.to_not raise_error
+      end
+
+      it 'returns the username' do
+        described_class.new(connection_as_string).load_user_data('test')[:username].should eq('test')
       end
     end
 
