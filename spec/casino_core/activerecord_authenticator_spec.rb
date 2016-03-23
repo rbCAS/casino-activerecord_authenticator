@@ -123,7 +123,7 @@ describe CASino::ActiveRecordAuthenticator do
         end
 
         context 'when no extra attributes given' do
-          let(:extra_attributes) { nil }
+          let(:extra_attributes) { {} }
 
           it 'returns an empty hash for extra attributes' do
             subject.validate('test', 'testpassword')[:extra_attributes].should eq({})

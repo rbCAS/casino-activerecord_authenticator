@@ -15,17 +15,12 @@ class CASino::ActiveRecordAuthenticator
       raise ArgumentError, "When assigning attributes, you must pass a hash as an argument."
     end
     @options = options.deep_symbolize_keys
-    raise ArgumentError, "Table name is missing" unless @options[:table]
-    if @options[:model_name]
-      model_name = @options[:model_name]
-    else
-      model_name = @options[:table]
-      if @options[:connection].kind_of?(Hash) && @options[:connection][:database]
-        model_name = "#{@options[:connection][:database].gsub(/[^a-zA-Z]+/, '')}_#{model_name}"
-      end
-      model_name = model_name.classify
-    end
-    model_class_name = "#{self.class.to_s}::#{model_name}"
+
+    raise ArgumentError, 'Connection information is missing' unless @options[:connection]
+    raise ArgumentError, 'Table name is missing' unless @options[:table]
+    raise ArgumentError, 'Username column is missing' unless @options[:username_column]
+    raise ArgumentError, 'Password column is missing' unless @options[:password_column]
+
     eval <<-END
       class #{model_class_name} < AuthDatabase
         self.table_name = "#{@options[:table]}"
@@ -38,7 +33,7 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def validate(username, password)
-    user = user(username)
+    user = user_by_constraints(username)
     password_from_database = user.send(@options[:password_column])
 
     if valid_password?(password, password_from_database)
@@ -52,22 +47,35 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def load_user_data(username)
-    user_data(user(username))
+    user_data(user_by_constraints(username))
   rescue ActiveRecord::RecordNotFound
     nil
   end
 
   private
-  def query
+  def model_class_name
+    if @options[:model_name]
+      model_name = @options[:model_name]
+    else
+      model_name = @options[:table]
+      if @options[:connection].kind_of?(Hash) && @options[:connection][:database]
+        model_name = "#{@options[:connection][:database].gsub(/[^a-zA-Z]+/, '')}_#{model_name}"
+      end
+      model_name = model_name.classify
+    end
+    "#{self.class.to_s}::#{model_name}"
+  end
+
+  def find_by_query
     constraints = ''
-    @options[:constraint_columns].each_key { |key| constraints += "_and_#{key}" } if @options[:constraint_columns].present?
+    @options.fetch(:constraint_columns, {}).each_key { |key| constraints += "_and_#{key}" }
     "find_by_#{@options[:username_column]}#{constraints}!"
   end
 
-  def user(username)
+  def user_by_constraints(username)
     args = [username]
-    args += @options[:constraint_columns].values if @options[:constraint_columns].present?
-    @model.send(query, *args)
+    args += @options.fetch(:constraint_columns, {}).values
+    @model.send(find_by_query, *args)
   end
 
   def user_data(user)
@@ -107,13 +115,9 @@ class CASino::ActiveRecordAuthenticator
 
   def extra_attributes(user)
     attributes = {}
-    extra_attributes_option.each do |attribute_name, database_column|
+    @options.fetch(:extra_attributes, {}).each do |attribute_name, database_column|
       attributes[attribute_name] = user.send(database_column)
     end
     attributes
-  end
-
-  def extra_attributes_option
-    @options[:extra_attributes] || {}
   end
 end
