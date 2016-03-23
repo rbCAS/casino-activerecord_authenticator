@@ -72,7 +72,8 @@ class CASino::ActiveRecordAuthenticator
     when /\AH\z/, /\AP\z/
       valid_password_with_phpass?(password, password_from_database)
     else
-      valid_password_with_unix_crypt?(password, password_from_database)
+      valid_password_as_plaintext?(password, password_from_database) ||
+          valid_password_with_unix_crypt?(password, password_from_database)
     end
   end
 
@@ -87,6 +88,10 @@ class CASino::ActiveRecordAuthenticator
 
   def valid_password_with_phpass?(password, password_from_database)
     Phpass.new().check(password, password_from_database)
+  end
+
+  def valid_password_as_plaintext?(password, password_from_database)
+    password == password_from_database
   end
 
   def extra_attributes(user)

@@ -194,6 +194,31 @@ describe CASino::ActiveRecordAuthenticator do
       end
     end
 
+    context 'support for unencrypted' do
+      before do
+        user_class.create!(
+            username: 'test5',
+            password: 'testpassword5',
+            mail_address: 'mail@example.org')
+      end
+
+      it 'is able to handle plaintext passwords' do
+        subject.validate('test5', 'testpassword5').should be_instance_of(Hash)
+      end
+
+      it 'returns false when plaintext password is invalid' do
+        subject.validate('test5', 'testpassword').should eq(false)
+      end
+
+      it 'returns false when bcrypt password hash is used as plaintext password' do
+        subject.validate('test5', '$2a$10$ndCGPWg5JFMQH/Kl6xKe.OGNaiG7CFIAVsgAOJU75Q6g5/FpY5eX6').should eq(false)
+      end
+
+      it 'returns false when phpass password hash is used as plaintext password' do
+        subject.validate('test5', '$P$9IQRaTwmfeRo7ud9Fh4E2PdI0S3r.L0').should eq(false)
+      end
+    end
+
     context 'support for connection string' do
 
       it 'should not raise an error' do
