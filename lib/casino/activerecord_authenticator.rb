@@ -38,7 +38,7 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def validate(username, password)
-    user = @model.send("find_by_#{@options[:username_column]}!", username)
+    user = user(username)
     password_from_database = user.send(@options[:password_column])
 
     if valid_password?(password, password_from_database)
@@ -52,13 +52,24 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def load_user_data(username)
-    user = @model.send("find_by_#{@options[:username_column]}!", username)
-    user_data(user)
+    user_data(user(username))
   rescue ActiveRecord::RecordNotFound
     nil
   end
 
   private
+  def query
+    constraints = ''
+    @options[:constraint_columns].each_key { |key| constraints += "_and_#{key}" } if @options[:constraint_columns].present?
+    "find_by_#{@options[:username_column]}#{constraints}!"
+  end
+
+  def user(username)
+    args = [username]
+    args += @options[:constraint_columns].values if @options[:constraint_columns].present?
+    @model.send(query, *args)
+  end
+
   def user_data(user)
     { username: user.send(@options[:username_column]), extra_attributes: extra_attributes(user) }
   end
