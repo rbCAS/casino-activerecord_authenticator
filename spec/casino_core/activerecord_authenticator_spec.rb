@@ -196,7 +196,7 @@ describe CASino::ActiveRecordAuthenticator do
       before do
         user_class.create!(
           username: 'test4',
-          password: '$P$9IQRaTwmfeRo7ud9Fh4E2PdI0S3r.L0', # password: test12345
+          password: Phpass.new().hash('test12345'),
           mail_address: 'mail@example.org')
       end
 
@@ -299,6 +299,54 @@ describe CASino::ActiveRecordAuthenticator do
         end
       end
     end
+
+    context 'support for plaintext_case_sensitive_password' do
+      context 'when plaintext_case_sensitive_password is true' do
+        subject { described_class.new(options.merge({plaintext_case_sensitive_password: true})) }
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              mail_address: 'mail@example.org')
+        end
+
+        it 'matches password exactly' do
+          subject.validate('test6', 'testpassword6').should be_instance_of(Hash)
+        end
+
+        it 'does not match password with different case' do
+          subject.validate('test6', 'tesTPasswOrd6').should eq(false)
+        end
+
+        it 'does not match wrong password' do
+          subject.validate('test6', 'testpassword5').should eq(false)
+        end
+      end
+
+      context 'when plaintext_case_sensitive_password is false' do
+        subject { described_class.new(options.merge({plaintext_case_sensitive_password: false})) }
+
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              mail_address: 'mail@example.org')
+        end
+
+        it 'matches password exactly' do
+          subject.validate('test6', 'testpassword6').should be_instance_of(Hash)
+        end
+
+        it 'matches password with different case' do
+          subject.validate('test6', 'tesTPasswOrd6').should be_instance_of(Hash)
+        end
+
+        it 'does not match wrong password' do
+          subject.validate('test6', 'testpassword5').should eq(false)
+        end
+      end
+    end
+
   end
 
 end

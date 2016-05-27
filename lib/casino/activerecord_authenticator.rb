@@ -110,7 +110,12 @@ class CASino::ActiveRecordAuthenticator
   end
 
   def valid_password_as_plaintext?(password, password_from_database)
-    password == password_from_database
+    if @options.fetch(:plaintext_case_sensitive_password, false)
+      password == password_from_database
+    else
+      password.casecmp(password_from_database) == 0
+    end
+
   end
 
   def extra_attributes(user)
