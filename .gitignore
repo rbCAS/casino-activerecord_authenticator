@@ -16,3 +16,6 @@ doc
 pkg
 
 /Gemfile.lock
+
+# Ignore RubyMine generated files
+.idea/*

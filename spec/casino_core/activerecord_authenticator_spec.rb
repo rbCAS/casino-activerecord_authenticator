@@ -18,8 +18,18 @@ describe CASino::ActiveRecordAuthenticator do
       extra_attributes: extra_attributes
     }
   end
+
+  let(:constraint_columns) do
+    {
+        constraint_columns: {
+            is_active: true
+        }
+    }
+  end
+
   let(:faulty_options){ options.merge(table: nil) }
   let(:connection_as_string) { options.merge(connection: 'sqlite3:/tmp/casino-test-auth.sqlite') }
+  let(:constraint_columns_options){ options.merge(constraint_columns) }
   let(:user_class) { described_class::TmpcasinotestauthsqliteUser }
 
   subject { described_class.new(options) }
@@ -34,6 +44,7 @@ describe CASino::ActiveRecordAuthenticator do
         create_table :users do |t|
           t.string :username
           t.string :password
+          t.string :is_active
           t.string :mail_address
         end
       end
@@ -112,7 +123,7 @@ describe CASino::ActiveRecordAuthenticator do
         end
 
         context 'when no extra attributes given' do
-          let(:extra_attributes) { nil }
+          let(:extra_attributes) { {} }
 
           it 'returns an empty hash for extra attributes' do
             subject.validate('test', 'testpassword')[:extra_attributes].should eq({})
@@ -185,12 +196,37 @@ describe CASino::ActiveRecordAuthenticator do
       before do
         user_class.create!(
           username: 'test4',
-          password: '$P$9IQRaTwmfeRo7ud9Fh4E2PdI0S3r.L0', # password: test12345
+          password: Phpass.new().hash('test12345'),
           mail_address: 'mail@example.org')
       end
 
       it 'is able to handle phpass password hashes' do
         subject.validate('test4', 'test12345').should be_instance_of(Hash)
+      end
+    end
+
+    context 'support for unencrypted' do
+      before do
+        user_class.create!(
+            username: 'test5',
+            password: 'testpassword5',
+            mail_address: 'mail@example.org')
+      end
+
+      it 'is able to handle plaintext passwords' do
+        subject.validate('test5', 'testpassword5').should be_instance_of(Hash)
+      end
+
+      it 'returns false when plaintext password is invalid' do
+        subject.validate('test5', 'testpassword').should eq(false)
+      end
+
+      it 'returns false when bcrypt password hash is used as plaintext password' do
+        subject.validate('test5', '$2a$10$ndCGPWg5JFMQH/Kl6xKe.OGNaiG7CFIAVsgAOJU75Q6g5/FpY5eX6').should eq(false)
+      end
+
+      it 'returns false when phpass password hash is used as plaintext password' do
+        subject.validate('test5', '$P$9IQRaTwmfeRo7ud9Fh4E2PdI0S3r.L0').should eq(false)
       end
     end
 
@@ -202,6 +238,112 @@ describe CASino::ActiveRecordAuthenticator do
 
       it 'returns the username' do
         described_class.new(connection_as_string).load_user_data('test')[:username].should eq('test')
+      end
+    end
+
+    context 'support for additional_constraint_column' do
+      subject { described_class.new(constraint_columns_options) }
+
+      context 'when is_active is not present' do
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              mail_address: 'mail@example.org')
+        end
+
+        it 'is able to take additional_constraint_column into consideration' do
+          subject.validate('test6', 'testpassword6').should eq(false)
+        end
+      end
+
+      context 'when is_active is nil' do
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              is_active: nil,
+              mail_address: 'mail@example.org')
+        end
+
+        it 'is able to take additional_constraint_column into consideration' do
+          subject.validate('test6', 'testpassword6').should eq(false)
+        end
+      end
+
+      context 'when is_active is true' do
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              is_active: true,
+              mail_address: 'mail@example.org')
+        end
+
+        it 'is able to take additional_constraint_column into consideration' do
+          subject.validate('test6', 'testpassword6').should be_instance_of(Hash)
+        end
+      end
+
+      context 'when is_active is false' do
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              is_active: false,
+              mail_address: 'mail@example.org')
+        end
+
+        it 'is able to take additional_constraint_column into consideration' do
+          subject.validate('test6', 'testpassword6').should eq(false)
+        end
+      end
+    end
+
+    context 'support for plaintext_case_sensitive_password' do
+      context 'when plaintext_case_sensitive_password is true' do
+        subject { described_class.new(options.merge({plaintext_case_sensitive_password: true})) }
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              mail_address: 'mail@example.org')
+        end
+
+        it 'matches password exactly' do
+          subject.validate('test6', 'testpassword6').should be_instance_of(Hash)
+        end
+
+        it 'does not match password with different case' do
+          subject.validate('test6', 'tesTPasswOrd6').should eq(false)
+        end
+
+        it 'does not match wrong password' do
+          subject.validate('test6', 'testpassword5').should eq(false)
+        end
+      end
+
+      context 'when plaintext_case_sensitive_password is false' do
+        subject { described_class.new(options.merge({plaintext_case_sensitive_password: false})) }
+
+        before do
+          user_class.create!(
+              username: 'test6',
+              password: 'testpassword6',
+              mail_address: 'mail@example.org')
+        end
+
+        it 'matches password exactly' do
+          subject.validate('test6', 'testpassword6').should be_instance_of(Hash)
+        end
+
+        it 'matches password with different case' do
+          subject.validate('test6', 'tesTPasswOrd6').should be_instance_of(Hash)
+        end
+
+        it 'does not match wrong password' do
+          subject.validate('test6', 'testpassword5').should eq(false)
+        end
       end
     end
 
