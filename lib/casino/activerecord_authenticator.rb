@@ -16,51 +16,45 @@ class CASino::ActiveRecordAuthenticator
     end
     @options = options.deep_symbolize_keys
     raise ArgumentError, "Table name is missing" unless @options[:table]
-    if @options[:model_name]
-      model_name = @options[:model_name]
-    else
-      model_name = @options[:table]
-      if @options[:connection].kind_of?(Hash) && @options[:connection][:database]
-        model_name = "#{@options[:connection][:database].gsub(/[^a-zA-Z]+/, '')}_#{model_name}"
-      end
-      model_name = model_name.classify
-    end
-    model_class_name = "#{self.class.to_s}::#{model_name}"
-    eval <<-END
-      class #{model_class_name} < AuthDatabase
-        self.table_name = "#{@options[:table]}"
-        self.inheritance_column = :_type_disabled
-      end
-    END
 
-    @model = model_class_name.constantize
-    @model.establish_connection @options[:connection]
+    resolver = ActiveRecord::ConnectionAdapters::ConnectionSpecification::Resolver.new(
+      { 'default' => @options[:connection] }
+    )
+    spec = resolver.spec(:default)
+    @pool = ActiveRecord::ConnectionAdapters::ConnectionPool.new(spec)
   end
 
   def validate(username, password)
-    user = @model.send("find_by_#{@options[:username_column]}!", username)
-    password_from_database = user.send(@options[:password_column])
+    user_hash = find_user_hash(username)
+
+    return false unless user_hash.present?
+
+    password_from_database = user_hash[@options[:password_column].to_s]
 
     if valid_password?(password, password_from_database)
-      user_data(user)
+      user_data(user_hash)
     else
       false
     end
-
-  rescue ActiveRecord::RecordNotFound
-    false
   end
 
   def load_user_data(username)
-    user = @model.send("find_by_#{@options[:username_column]}!", username)
-    user_data(user)
-  rescue ActiveRecord::RecordNotFound
-    nil
+    user_hash = find_user_hash(username)
+    return nil unless user_hash.present?
+    user_data(user_hash)
   end
 
   private
+
+  def find_user_hash(username)
+    @pool.with_connection { |conn|
+      sql = "SELECT * FROM #{@options[:table]} WHERE #{@options[:username_column]}=#{conn.quote(username)} LIMIT 1"
+      user_hash = conn.exec_query(sql)[0]
+    }
+  end
+
   def user_data(user)
-    { username: user.send(@options[:username_column]), extra_attributes: extra_attributes(user) }
+    { username: user[@options[:username_column].to_s], extra_attributes: extra_attributes(user) }
   end
 
   def valid_password?(password, password_from_database)
@@ -92,7 +86,7 @@ class CASino::ActiveRecordAuthenticator
   def extra_attributes(user)
     attributes = {}
     extra_attributes_option.each do |attribute_name, database_column|
-      attributes[attribute_name] = user.send(database_column)
+      attributes[attribute_name] = user[database_column.to_s]
     end
     attributes
   end
