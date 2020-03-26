@@ -53,8 +53,11 @@ class CASino::ActiveRecordAuthenticator
     }
   end
 
-  def user_data(user)
-    { username: user[@options[:username_column].to_s], extra_attributes: extra_attributes(user) }
+  def user_data(user_hash)
+    {
+      username: user_hash[@options[:username_column].to_s],
+      extra_attributes: extra_attributes(user_hash)
+    }
   end
 
   def valid_password?(password, password_from_database)
@@ -83,10 +86,10 @@ class CASino::ActiveRecordAuthenticator
     Phpass.new().check(password, password_from_database)
   end
 
-  def extra_attributes(user)
+  def extra_attributes(user_hash)
     attributes = {}
     extra_attributes_option.each do |attribute_name, database_column|
-      attributes[attribute_name] = user[database_column.to_s]
+      attributes[attribute_name] = user_hash[database_column.to_s]
     end
     attributes
   end
